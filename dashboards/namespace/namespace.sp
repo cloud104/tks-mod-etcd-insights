@@ -14,7 +14,7 @@ category "namespace" {
 query "namespace_count_etcd" {
   sql = <<-EOQ
     select
-      count(*) as "Namespaces"
+      count(*) as "Clusters"
     from
       kubernetes_namespace
     where
