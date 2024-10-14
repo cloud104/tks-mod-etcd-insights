@@ -3,7 +3,7 @@ mod "etcd_insights" {
   title         = "Etcd Insights"
   description   = "Etcd Insights for TKS Clusters"
   color         = "#0089D6"
-  documentation = file("./docs/index.md")
+  # documentation = file("./docs/index.md")
   icon          = "/images/mods/turbot/kubernetes-insights.svg"
   categories    = ["kubernetes", "dashboard", "private", "tks"]
 

@@ -1,17 +1,17 @@
 dashboard "namespace_age_report" {
 
-  title         = "Kubernetes Namespace Age Report"
+  title         = "TKS ETCD Clusters"
   documentation = file("./dashboards/namespace/docs/namespace_report_age.md")
 
   tags = merge(local.namespace_common_tags, {
     type     = "Report"
-    category = "Age"
+    category = "ETCD"
   })
 
   container {
 
     card {
-      query = query.namespace_count
+      query = query.namespace_count_etcd
       width = 2
     }
 
@@ -51,10 +51,6 @@ dashboard "namespace_age_report" {
       display = "none"
     }
 
-    column "Name" {
-      href = "${dashboard.namespace_detail.url_path}?input.namespace_uid={{.UID | @uri}}"
-    }
-
     query = query.namespace_age_table
   }
 }
@@ -67,6 +63,7 @@ query "namespace_24_hours_count" {
     from
       kubernetes_namespace
     where
+      (tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver') and
       creation_timestamp > now() - '1 days' :: interval;
   EOQ
 }
@@ -79,6 +76,7 @@ query "namespace_30_days_count" {
     from
       kubernetes_namespace
     where
+      (tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver') and
       creation_timestamp between symmetric now() - '1 days' :: interval
       and now() - '30 days' :: interval;
   EOQ
@@ -92,6 +90,7 @@ query "namespace_30_90_days_count" {
     from
       kubernetes_namespace
     where
+      (tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver') and
       creation_timestamp between symmetric now() - '30 days' :: interval
       and now() - '90 days' :: interval;
   EOQ
@@ -105,6 +104,7 @@ query "namespace_90_365_days_count" {
     from
       kubernetes_namespace
     where
+      (tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver') and
       creation_timestamp between symmetric (now() - '90 days'::interval)
       and (now() - '365 days'::interval);
   EOQ
@@ -118,7 +118,8 @@ query "namespace_1_year_count" {
     from
       kubernetes_namespace
     where
-      creation_timestamp <= now() - '1 year' :: interval;
+      creation_timestamp <= now() - '1 year' :: interval and
+      (tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver')
   EOQ
 }
 
@@ -128,11 +129,19 @@ query "namespace_age_table" {
       name as "Name",
       now()::date - creation_timestamp::date as "Age in Days",
       creation_timestamp as "Create Time",
-      context_name as "Context Name",
+      tags->>'cockpit.tks.sh/description' as "Description",
+      tags->>'cockpit.tks.sh/cluster_owners' as "Cluster Owners",      
+      tags->>'cockpit.tks.sh/cluster_alias' as "Cluster Alias",      
+      tags->>'cockpit.tks.sh/cloud_provider' as "Cloud Provider",
+      tags->>'cockpit.tks.sh/region' as "Region",
+      tags->>'cockpit.tks.sh/active' as "Active",
+      tags->>'cockpit.tks.sh/etcd_cluster_type' as "Etcd Cluster Type",
       uid as "UID"
     from
       kubernetes_namespace
+    where
+      tags->>'cockpit.tks.sh/etcd_cluster_type'='vault' or tags->>'cockpit.tks.sh/etcd_cluster_type'='apiserver'
     order by
-      name;
+      creation_timestamp;
   EOQ
 }
