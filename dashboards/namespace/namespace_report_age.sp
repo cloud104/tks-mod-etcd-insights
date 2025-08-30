@@ -129,6 +129,7 @@ query "namespace_age_table" {
       name as "Name",
       now()::date - creation_timestamp::date as "Age in Days",
       creation_timestamp as "Create Time",
+      tags->>'cockpit.tks.sh/decommission' as "Decommission date",
       tags->>'cockpit.tks.sh/description' as "Description",
       tags->>'cockpit.tks.sh/cluster_owners' as "Cluster Owners",      
       tags->>'cockpit.tks.sh/cluster_alias' as "Cluster Alias",      
