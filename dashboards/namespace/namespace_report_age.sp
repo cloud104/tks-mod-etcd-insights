@@ -126,6 +126,7 @@ query "namespace_1_year_count" {
 query "namespace_age_table" {
   sql = <<-EOQ
     select
+      tags->>'cockpit.tks.sh/active' as "Active",
       name as "Name",
       now()::date - creation_timestamp::date as "Age in Days",
       creation_timestamp as "Create Time",
@@ -135,7 +136,6 @@ query "namespace_age_table" {
       tags->>'cockpit.tks.sh/cluster_alias' as "Cluster Alias",      
       tags->>'cockpit.tks.sh/cloud_provider' as "Cloud Provider",
       tags->>'cockpit.tks.sh/region' as "Region",
-      tags->>'cockpit.tks.sh/active' as "Active",
       tags->>'cockpit.tks.sh/etcd_cluster_type' as "Etcd Cluster Type",
       uid as "UID"
     from
